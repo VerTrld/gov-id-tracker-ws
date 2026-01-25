@@ -9,7 +9,8 @@ export class PersonService {
 
   async findAll() {
     const data = await this.prismaClient.person.findMany();
-    return data;
+    const result = data.map(({ password, ...rest }) => rest);
+    return result;
   }
 
   async create(createPersonDto: CreatePersonDto) {
