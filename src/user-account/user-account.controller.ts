@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
 import { UserRoles } from '@prisma/client';
-import { CreateUserAccountDto } from './dto/create-user-account.dto';
+import { CreateFirstUserAccountDto } from './dto/create-user-account.dto';
 import { UserAccountService } from './user-account.service';
 
 @Controller('userAccount')
 export class PersonController {
   constructor(private readonly userAccountService: UserAccountService) {}
   @Post('create/one')
-  async create(@Body() createUserAccountDto: CreateUserAccountDto) {
+  async create(@Body() createUserAccountDto: CreateFirstUserAccountDto) {
     console.log({ createUserAccountDto });
     return await this.userAccountService.create({
       ...createUserAccountDto,
@@ -24,7 +24,6 @@ export class PersonController {
       name,
       email,
       password,
-      roles: UserRoles.SUPER_ADMIN,
     });
   }
 

@@ -4,7 +4,10 @@ import * as argon2 from 'argon2';
 import * as _ from 'lodash';
 import { UserRole } from 'src/enum/common/enums/user-role.enum';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateUserAccountDto } from './dto/create-user-account.dto';
+import {
+  CreateFirstUserAccountDto,
+  CreateUserAccountDto,
+} from './dto/create-user-account.dto';
 
 @Injectable()
 export class UserAccountService {
@@ -15,7 +18,7 @@ export class UserAccountService {
     return hashPassword;
   }
 
-  async createFirstUser(createUserAccountDto: CreateUserAccountDto) {
+  async createFirstUser(createUserAccountDto: CreateFirstUserAccountDto) {
     const createdFirstUser = await this.create({
       ...createUserAccountDto,
       roles: UserRole.SUPER_ADMIN,
@@ -31,7 +34,7 @@ export class UserAccountService {
       },
     });
     const idv4 = uuidv4();
-    const id = _.isEmpty(admin?.id) ? idv4 : admin?.id;
+    const id = idv4;
 
     const createdHashPassword = await this.hashPassword(password);
     console.log({ admin, password });
@@ -45,8 +48,8 @@ export class UserAccountService {
         password: createdHashPassword,
       },
     });
-    // return null;
-    return createdUserAccount;
+    // @ts-ignore
+    return { ...createdUserAccount, password: null };
   }
 
   async remove(id: string) {

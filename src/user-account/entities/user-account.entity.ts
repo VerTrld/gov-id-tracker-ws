@@ -16,5 +16,5 @@ export class UserAccountEntity extends DefaultEntity {
   @ApiPropertyOptional()
   @IsString()
   @IsEnum(UserRole)
-  roles: string;
+  roles?: string;
 }
