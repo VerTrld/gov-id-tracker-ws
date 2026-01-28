@@ -21,13 +21,13 @@ enum UserRoles {
 model UserAccount {
   id             String   @id @default(uuid())
   createdAt      DateTime @default(now())
-  createdBy      String
-  updatedBy      String
+  createdBy      String?
+  updatedBy      String?
   updatedAt      DateTime @updatedAt
-  ownerAccountId String
+  ownerAccountId String?
 
   name     String
-  email    String    @unique
+  email    String     @unique
   password String
-  roles    UserRoles
+  roles    UserRoles? @default(USER)
 }

@@ -6,22 +6,26 @@ import { UserAccountService } from './user-account.service';
 @Controller('userAccount')
 export class PersonController {
   constructor(private readonly userAccountService: UserAccountService) {}
+  @Post('create/one')
+  async create(@Body() createUserAccountDto: CreateUserAccountDto) {
+    console.log({ createUserAccountDto });
+    return await this.userAccountService.create({
+      ...createUserAccountDto,
+      roles: UserRoles.USER,
+    });
+  }
+
   @Post('create/first-user')
-  createFirstUser() {
+  async createFirstUser() {
     const [email, password, name] = (process.env.FIRST_USER as string)?.split(
       ':',
     );
-    return this.userAccountService.createFirstUser({
+    return await this.userAccountService.createFirstUser({
       name,
       email,
       password,
       roles: UserRoles.SUPER_ADMIN,
     });
-  }
-
-  @Post('create')
-  create(@Body() createUserAccountDto: CreateUserAccountDto) {
-    return this.userAccountService.create(createUserAccountDto);
   }
 
   @Delete('/delete/:id')

@@ -1,15 +1,20 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { UserRoles } from '@prisma/client';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsString } from 'class-validator';
+import { DefaultEntity } from 'src/enum/common/entity/default.entity';
+import { UserRole } from 'src/enum/common/enums/user-role.enum';
 
-export class UserAccountEntity {
+export class UserAccountEntity extends DefaultEntity {
   @ApiProperty()
-  id: string;
-  @ApiProperty()
+  @IsString()
   name: string;
   @ApiProperty()
+  @IsString()
   email: string;
   @ApiProperty()
+  @IsString()
   password: string;
-  @ApiProperty()
-  roles: UserRoles;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsEnum(UserRole)
+  roles: string;
 }

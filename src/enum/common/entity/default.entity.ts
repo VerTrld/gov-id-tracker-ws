@@ -1,8 +1,16 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+
 export class DefaultEntity {
-  id: string;
-  ownerAccountId: string;
-  createdAt: string;
-  createdBy: string;
-  updatedAt: string;
-  updatedBy: string;
+  @ApiPropertyOptional()
+  id?: string;
+  @ApiPropertyOptional()
+  ownerAccountId?: string;
+  @ApiPropertyOptional()
+  createdAt?: string;
+  @ApiPropertyOptional()
+  createdBy?: string;
+  @ApiPropertyOptional()
+  updatedAt?: string;
+  @ApiPropertyOptional()
+  updatedBy?: string;
 }

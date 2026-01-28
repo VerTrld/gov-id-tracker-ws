@@ -34,6 +34,7 @@ export class AuthService {
   }
 
   async login(user: UserAccount) {
+    const { password, ...resUser } = user;
     const payload = {
       sub: user.id,
       name: user.name,
@@ -49,6 +50,7 @@ export class AuthService {
     return {
       accessToken: token,
       user: {
+        ...resUser,
         id: user.id,
         name: user.name,
         email: user.email,
