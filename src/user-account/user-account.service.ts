@@ -36,6 +36,7 @@ export class UserAccountService {
     const createdHashPassword = await this.hashPassword(password);
     console.log({ admin, password });
     const createdUserAccount = await this.prismaClient.userAccount.create({
+      // @ts-ignore
       data: {
         ...res,
         id,
