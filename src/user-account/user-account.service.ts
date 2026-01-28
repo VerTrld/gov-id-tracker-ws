@@ -8,6 +8,7 @@ import {
   CreateFirstUserAccountDto,
   CreateUserAccountDto,
 } from './dto/create-user-account.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class UserAccountService {
@@ -57,5 +58,44 @@ export class UserAccountService {
       where: { id },
     });
     return deletePerson;
+  }
+
+  async findAll(query: PaginationQueryDto) {
+    const {
+      limit = 10,
+      offset = 0,
+      sortBy = 'createdAt',
+      order = 'DESC',
+      search,
+    } = query;
+
+    const data = await this.prismaClient.userAccount.findMany({
+      where: {
+        roles: UserRole.USER,
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+        email: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
+      take: limit,
+      skip: offset,
+      orderBy: {
+        // [sortBy]: order,
+      },
+    });
+
+    return {
+      data,
+      meta: {
+        total: data.length,
+        limit,
+        offset,
+        hasNext: offset + limit < data.length,
+      },
+    };
   }
 }

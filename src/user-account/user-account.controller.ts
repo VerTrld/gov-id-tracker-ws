@@ -1,7 +1,16 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UserRoles } from '@prisma/client';
 import { CreateFirstUserAccountDto } from './dto/create-user-account.dto';
 import { UserAccountService } from './user-account.service';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Controller('userAccount')
 export class PersonController {
@@ -30,5 +39,10 @@ export class PersonController {
   @Delete('/delete/:id')
   remove(@Param('id') id: string) {
     return this.userAccountService.remove(id);
+  }
+
+  @Get('users/list')
+  async findAll(@Query() query: PaginationQueryDto) {
+    return await this.userAccountService.findAll(query);
   }
 }
