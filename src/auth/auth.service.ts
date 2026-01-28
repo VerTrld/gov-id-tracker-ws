@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { PrismaClient } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
+import { PrismaClient, UserAccount } from '@prisma/client';
 
-import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { Person } from 'src/person/entities/person.entity';
+import * as argon2 from 'argon2';
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,7 +13,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
-    const user = await this.prismaClient.person.findFirst({
+    const user = await this.prismaClient.userAccount.findFirst({
       where: { email },
     });
 
@@ -24,7 +21,11 @@ export class AuthService {
       return null;
     }
 
+    console.log({ user });
+
     const passwordMatches = await argon2.verify(user.password, password);
+
+    console.log({ passwordMatches });
     if (!passwordMatches) {
       return null;
     }
@@ -32,11 +33,12 @@ export class AuthService {
     return user;
   }
 
-  async login(person: Person) {
+  async login(user: UserAccount) {
     const payload = {
-      sub: person.id,
-      name: person.name,
-      email: person.email,
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      roles: user.roles,
     };
 
     const token = this.jwtService.sign(payload, {
@@ -47,30 +49,10 @@ export class AuthService {
     return {
       accessToken: token,
       user: {
-        id: person.id,
-        name: person.name,
-        email: person.email,
+        id: user.id,
+        name: user.name,
+        email: user.email,
       },
     };
-  }
-
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
   }
 }

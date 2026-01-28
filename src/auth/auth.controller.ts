@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 
@@ -16,15 +8,16 @@ export class AuthController {
 
   @Post('login')
   async create(@Body() createAuthDto: CreateAuthDto) {
-    const person = await this.authService.validateUser(
+    console.log({ createAuthDto });
+    const user = await this.authService.validateUser(
       createAuthDto.email,
       createAuthDto.password,
     );
 
-    if (!person) {
+    if (!user) {
       return { message: 'Invalid credentials' };
     }
 
-    return this.authService.login(person);
+    return await this.authService.login(user);
   }
 }
