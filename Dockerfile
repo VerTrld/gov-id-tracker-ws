@@ -1,61 +1,40 @@
 # ------------------------
-# Stage 1: Build
+# Build
 # ------------------------
 FROM node:20-alpine AS build
-
 WORKDIR /app
 
-# Copy package files first for better caching
+# Copy package files and install all dependencies (dev + prod)
 COPY package*.json ./
-
-# Install all deps (needed for build + prisma)
 RUN npm install
 
-# Copy rest of the source
+# Copy the rest of the source code
 COPY . .
 
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build the app
+# Build the NestJS app
 RUN npm run build
 
-# Remove dev dependencies
+# Remove devDependencies to prepare for production
 RUN npm prune --omit=dev
 
 
 # ------------------------
-# Stage 2: Prune node_modules (optional but recommended)
+# Production
 # ------------------------
-FROM golang:1.22-alpine AS prune
-
+FROM node:20-alpine
 WORKDIR /app
 
-# Copy only what we need
-COPY --from=build /app/node_modules ./node_modules
+# Copy the production build and pruned node_modules
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/package*.json ./
-
-# Install node-prune
-RUN go install github.com/tj/node-prune@latest
-
-# Remove unnecessary files from node_modules
-RUN node-prune
-
-
-# ------------------------
-# Stage 3: Production
-# ------------------------
-FROM node:20-alpine AS production
-
-WORKDIR /app
-
-# Copy pruned output
-COPY --from=prune /app /app
 
 # Expose app port
 EXPOSE 3001
 
-# Start the app
+# Start the application
 CMD ["node", "dist/main.js"]
