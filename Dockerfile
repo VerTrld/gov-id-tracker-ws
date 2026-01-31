@@ -1,28 +1,61 @@
-FROM node:20-alpine AS builder
+# ------------------------
+# Stage 1: Build
+# ------------------------
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Copy package files first for better caching
 COPY package*.json ./
+
+# Install all deps (needed for build + prisma)
 RUN npm install
 
+# Copy rest of the source
 COPY . .
 
+# Generate Prisma client
 RUN npx prisma generate
+
+# Build the app
 RUN npm run build
 
-FROM node:20-alpine
+# Remove dev dependencies
+RUN npm prune --omit=dev
+
+
+# ------------------------
+# Stage 2: Prune node_modules (optional but recommended)
+# ------------------------
+FROM golang:1.22-alpine AS prune
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --only=production
-# RUN npm install --omit=dev
+# Copy only what we need
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/package*.json ./
+
+# Install node-prune
+RUN go install github.com/tj/node-prune@latest
+
+# Remove unnecessary files from node_modules
+RUN node-prune
 
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# ------------------------
+# Stage 3: Production
+# ------------------------
+FROM node:20-alpine AS production
 
+WORKDIR /app
+
+# Copy pruned output
+COPY --from=prune /app /app
+
+# Expose app port
 EXPOSE 3001
 
+# Start the app
 CMD ["node", "dist/main.js"]
