@@ -15,15 +15,13 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --only=production
+# RUN npm install --only=production
+RUN npm install --omit=dev
 
-# Copy build output
+
 COPY --from=builder /app/dist ./dist
-
-# Copy prisma client and schema
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 EXPOSE 3001
 
