@@ -7,14 +7,15 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { UserRoles } from '@prisma/client';
 import { CreateFirstUserAccountDto } from './dto/create-user-account.dto';
 import { UserAccountService } from './user-account.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { UserRoles } from '@prisma/client';
 
-@Controller('userAccount')
-export class PersonController {
+@Controller('user-account')
+export class UserAccountController {
   constructor(private readonly userAccountService: UserAccountService) {}
+  
   @Post('create/one')
   async create(@Body() createUserAccountDto: CreateFirstUserAccountDto) {
     console.log({ createUserAccountDto });
