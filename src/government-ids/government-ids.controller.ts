@@ -20,9 +20,9 @@ export class GovernmentIdsController {
     return this.governmentIdsService.create(createGovernmentIdDto);
   }
 
-  @Get()
-  findAll() {
-    return this.governmentIdsService.findAll();
+  @Get('/read/all')
+  async findAll() {
+    return await this.governmentIdsService.findAll();
   }
 
   @Get(':id')

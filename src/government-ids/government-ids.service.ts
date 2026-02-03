@@ -20,8 +20,14 @@ export class GovernmentIdsService {
     return this.baseCreate(createGovernmentIdDto);
   }
 
-  findAll() {
-    return `This action returns all governmentIds`;
+  async findAll() {
+    const governmentIds = await this.prismaClient.govermentIds.findMany({
+      include: {
+        RequirementGovernmentIds: true,
+        RequireGovermentIds: true,
+      },
+    });
+    return governmentIds;
   }
 
   findOne(id: number) {
