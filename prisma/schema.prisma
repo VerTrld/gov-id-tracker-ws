@@ -19,6 +19,23 @@ enum UserRoles {
 }
 
 model UserAccount {
+  id             String   @id @unique @default(uuid())
+  createdAt      DateTime @default(now())
+  createdBy      String?
+  updatedBy      String?
+  updatedAt      DateTime @updatedAt
+  ownerAccountId String?
+
+  name              String
+  email             String              @unique
+  password          String
+  roles             UserRoles?          @default(USER)
+  UserGovernmentIds UserGovernmentIds[]
+
+  @@map("user_account")
+}
+
+model GovermentIds {
   id             String   @id @default(uuid())
   createdAt      DateTime @default(now())
   createdBy      String?
@@ -26,8 +43,66 @@ model UserAccount {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  name     String
-  email    String     @unique
-  password String
-  roles    UserRoles? @default(USER)
+  description  String?
+  code         String   @unique
+  label        String
+  officialUrls String[]
+
+  UserGovernmentIds UserGovernmentIds[]
+
+  RequirementGovernmentIds RequirementGovernmentIds[] @relation("Requires")
+  RequireGovermentIds      RequirementGovernmentIds[] @relation("RequiredBy")
+
+  @@map("government_ids")
+}
+
+model UserGovernmentIds {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  createdBy      String?
+  updatedBy      String?
+  updatedAt      DateTime @updatedAt
+  ownerAccountId String?
+
+  isActive      Boolean @default(true)
+  userAccountId String
+  governmentId  String
+
+  government GovermentIds @relation(fields: [governmentId], references: [id])
+  user       UserAccount  @relation(fields: [userAccountId], references: [id])
+
+  @@map("user_government_ids")
+}
+
+model RequirementGovernmentIds {
+  id             String   @id @unique @default(uuid())
+  createdAt      DateTime @default(now())
+  createdBy      String?
+  updatedBy      String?
+  updatedAt      DateTime @updatedAt
+  ownerAccountId String?
+
+  GroupRequireGovernmentIds GroupRequireGovernmentIds? @relation(fields: [groupRequireGovernmentId], references: [id])
+  groupRequireGovernmentId  String?
+  GovermentIds              GovermentIds               @relation("Requires", fields: [governmentId], references: [id])
+  governmentId              String
+  RequireGovermentIds       GovermentIds               @relation("RequiredBy", fields: [requireGovernmentId], references: [id])
+  requireGovernmentId       String
+
+  @@map("requirement_government_ids")
+}
+
+model GroupRequireGovernmentIds {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  createdBy      String?
+  updatedBy      String?
+  updatedAt      DateTime @updatedAt
+  ownerAccountId String?
+
+  requirementGovernmentIds RequirementGovernmentIds[]
+  minRequirement           Int                        @default(1)
+  label                    String?
+
+  @@map("group_require_government_ids")
 }
