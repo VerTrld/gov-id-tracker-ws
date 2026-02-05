@@ -101,7 +101,7 @@ model GroupRequireGovernmentIds {
   ownerAccountId String?
 
   requirementGovernmentIds RequirementGovernmentIds[]
-  minRequirement           Int                        @default(1)
+  minRequirement           Int?                       @default(1)
   label                    String?
 
   @@map("group_require_government_ids")

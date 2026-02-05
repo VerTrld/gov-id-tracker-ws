@@ -1,12 +1,21 @@
-import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsArray, IsObject } from 'class-validator';
-import { DefaultEntity } from 'src/enum/common/entity/default.entity';
-import { CreateRequirementGovernmentIdDto } from 'src/requirement-government-ids/dto/create-requirement-government-id.dto';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsArray, ValidateNested } from 'class-validator';
 import { GovernmentId } from '../entities/government-id.entity';
+import { CreateGovernmentIdsGroupRequirmentDto } from './create-government-ids-group-requirements.dto';
 
 export class CreateGovernmentIdDto extends PickType(GovernmentId, [
   'code',
   'description',
   'label',
   'officialUrls',
-]) {}
+]) {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateGovernmentIdsGroupRequirmentDto)
+  @ApiProperty({
+    type: () => [CreateGovernmentIdsGroupRequirmentDto],
+    required: true,
+  })
+  GroupRequirementGovernmentIds: CreateGovernmentIdsGroupRequirmentDto[];
+}

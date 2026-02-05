@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsObject, IsString } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 import { DefaultEntity } from 'src/enum/common/entity/default.entity';
-import { CreateRequirementGovernmentIdDto } from 'src/requirement-government-ids/dto/create-requirement-government-id.dto';
+import { RequirementGovernmentId } from 'src/requirement-government-ids/entities/requirement-government-id.entity';
 
 export class GovernmentId extends DefaultEntity {
   @ApiProperty()
@@ -19,4 +19,10 @@ export class GovernmentId extends DefaultEntity {
   @ApiProperty()
   @IsArray()
   officialUrls: string[];
+
+  @ApiProperty()
+  RequirementGovernmentIds?: RequirementGovernmentId[];
+
+  @ApiProperty()
+  RequireGovermentIds?: RequirementGovernmentId[];
 }
