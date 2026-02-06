@@ -20,7 +20,6 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Backend')
-    .addBearerAuth()
     .addBasicAuth({
       type: 'oauth2',
       flows: {
