@@ -80,7 +80,11 @@ export class GovernmentIdsService {
       include: {
         RequirementGovernmentIds: true,
         RequireGovernmentIds: true,
-        UserGovernmentIds: true,
+        UserGovernmentIds: {
+          where: {
+            userAccountId: userId,
+          },
+        },
       },
     });
 

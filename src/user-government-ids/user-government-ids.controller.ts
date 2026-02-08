@@ -35,7 +35,7 @@ export class UserGovernmentIdsController {
   }
 
   @Patch('/update/toggle/:userGovernmentId')
-  async update(
+  async updateToggle(
     @OwnerIdParam() ownerId: string,
     @UserIdParam() userId: string,
     @Param('userGovernmentId') userGovernmentId: string,
