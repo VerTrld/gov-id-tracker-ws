@@ -6,23 +6,35 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateFirstUserAccountDto } from './dto/create-user-account.dto';
 import { UserAccountService } from './user-account.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { UserRoles } from '@prisma/client';
-
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { OwnerIdParam } from 'src/params/OwnerIdParam';
+import { UserIdParam } from 'src/params/UserIdParam';
+import { ApiBasicAuth } from '@nestjs/swagger';
+@ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {
   constructor(private readonly userAccountService: UserAccountService) {}
-  
+
   @Post('create/one')
-  async create(@Body() createUserAccountDto: CreateFirstUserAccountDto) {
-    console.log({ createUserAccountDto });
-    return await this.userAccountService.create({
-      ...createUserAccountDto,
-      roles: UserRoles.USER,
-    });
+  async create(
+    @Body() createUserAccountDto: CreateFirstUserAccountDto,
+    @UserIdParam() userId?: string,
+    @OwnerIdParam() ownerId?: string,
+  ) {
+    return await this.userAccountService.create(
+      {
+        ...createUserAccountDto,
+        roles: UserRoles.USER,
+      },
+      ownerId,
+      userId,
+    );
   }
 
   @Post('create/first-user')

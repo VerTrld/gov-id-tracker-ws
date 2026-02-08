@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -21,7 +22,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Backend')
     .addBasicAuth({
-      type: 'oauth2',
+      type: 'http',
       flows: {
         password: {
           scopes: {},

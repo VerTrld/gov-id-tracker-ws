@@ -20,32 +20,40 @@ export class UserAccountService {
   }
 
   async createFirstUser(createUserAccountDto: CreateFirstUserAccountDto) {
-    const createdFirstUser = await this.create({
-      ...createUserAccountDto,
-      roles: UserRole.SUPER_ADMIN,
-    });
+    const createdFirstUser = await this.create(
+      {
+        ...createUserAccountDto,
+        roles: UserRole.SUPER_ADMIN,
+      },
+      undefined,
+      undefined,
+    );
     return createdFirstUser;
   }
 
-  async create(createUserAccountDto: CreateUserAccountDto) {
+  async create(
+    createUserAccountDto: CreateUserAccountDto,
+    ownerId?: string,
+    userId?: string,
+  ) {
     const { password, ...res } = createUserAccountDto;
+    const idv4 = uuidv4();
+    const id = idv4;
     const admin = await this.prismaClient.userAccount.findFirst({
       where: {
         roles: UserRole.SUPER_ADMIN,
       },
     });
-    const idv4 = uuidv4();
-    const id = idv4;
+    console.log({ id });
 
     const createdHashPassword = await this.hashPassword(password);
-    console.log({ admin, password });
     const createdUserAccount = await this.prismaClient.userAccount.create({
       // @ts-ignore
       data: {
         ...res,
         id,
-        ownerAccountId: admin?.id || id,
-        createdBy: id,
+        ownerAccountId: ownerId || admin?.id || id,
+        createdBy: userId || id,
         password: createdHashPassword,
       },
     });

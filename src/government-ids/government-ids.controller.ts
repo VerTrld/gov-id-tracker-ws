@@ -6,28 +6,67 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { GovernmentIdsService } from './government-ids.service';
 import { CreateGovernmentIdDto } from './dto/create-government-id.dto';
 import { UpdateGovernmentIdDto } from './dto/update-government-id.dto';
-
+import { OwnerIdParam } from 'src/params/OwnerIdParam';
+import { UserIdParam } from 'src/params/UserIdParam';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { ApiBasicAuth, ApiParam } from '@nestjs/swagger';
+import { PrismaClient } from '@prisma/client';
+import * as _ from 'lodash';
+@UseGuards(JwtAuthGuard)
+@ApiBasicAuth()
 @Controller('government-ids')
 export class GovernmentIdsController {
-  constructor(private readonly governmentIdsService: GovernmentIdsService) {}
+  constructor(
+    private readonly governmentIdsService: GovernmentIdsService,
+    private readonly prismaClient: PrismaClient,
+  ) {}
 
   @Post('/create/one')
-  create(@Body() createGovernmentIdDto: CreateGovernmentIdDto) {
-    return this.governmentIdsService.create(createGovernmentIdDto);
+  async create(
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+    @Body() createGovernmentIdDto: CreateGovernmentIdDto,
+  ) {
+    return await this.governmentIdsService.create(
+      ownerId,
+      userId,
+      createGovernmentIdDto,
+    );
   }
 
   @Get('/read/all')
-  async findAll() {
-    return await this.governmentIdsService.findAll();
+  async findAll(
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+  ) {
+    return await this.governmentIdsService.findAll(ownerId, userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.governmentIdsService.findOne(+id);
+  @Get('/read/:governmentIdsCode')
+  async findOne(
+    @Param('governmentIdsCode') governmentIdsCode: string,
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+  ) {
+    const governmentId = await this.prismaClient.governmentIds.findFirst({
+      where: {
+        code: governmentIdsCode.toUpperCase(),
+      },
+    });
+    const governmentIds = await this.governmentIdsService.findOne(
+      ownerId,
+      userId,
+      governmentId?.id,
+    );
+
+    console.log({ governmentIds });
+    return governmentIds;
   }
 
   @Patch(':id')

@@ -9,6 +9,9 @@ import { RequirementGovernmentIdsModule } from './requirement-government-ids/req
 import { GroupRequireGovernmentIdsModule } from './group-require-government-ids/group-require-government-ids.module';
 import { PrismaClient } from '@prisma/client';
 import { PrismaModule } from './prisma/prisma.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './auth/stategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -20,7 +23,14 @@ import { PrismaModule } from './prisma/prisma.module';
     UserGovernmentIdsModule,
     RequirementGovernmentIdsModule,
     GroupRequireGovernmentIdsModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
+  providers: [JwtStrategy],
+  exports: [PassportModule],
   // controllers: [AppController],
   // useClass: RolesGuard,
 })

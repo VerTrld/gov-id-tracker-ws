@@ -35,7 +35,7 @@ model UserAccount {
   @@map("user_account")
 }
 
-model GovermentIds {
+model GovernmentIds {
   id             String   @id @default(uuid())
   createdAt      DateTime @default(now())
   createdBy      String?
@@ -51,7 +51,7 @@ model GovermentIds {
   UserGovernmentIds UserGovernmentIds[]
 
   RequirementGovernmentIds RequirementGovernmentIds[] @relation("Requires")
-  RequireGovermentIds      RequirementGovernmentIds[] @relation("RequiredBy")
+  RequireGovernmentIds      RequirementGovernmentIds[] @relation("RequiredBy")
 
   @@map("government_ids")
 }
@@ -68,7 +68,7 @@ model UserGovernmentIds {
   userAccountId String
   governmentId  String
 
-  government GovermentIds @relation(fields: [governmentId], references: [id])
+  government GovernmentIds @relation(fields: [governmentId], references: [id])
   user       UserAccount  @relation(fields: [userAccountId], references: [id])
 
   @@map("user_government_ids")
@@ -84,9 +84,9 @@ model RequirementGovernmentIds {
 
   GroupRequireGovernmentIds GroupRequireGovernmentIds? @relation(fields: [groupRequireGovernmentId], references: [id])
   groupRequireGovernmentId  String?
-  GovermentIds              GovermentIds               @relation("Requires", fields: [governmentId], references: [id])
+  GovernmentIds              GovernmentIds               @relation("Requires", fields: [governmentId], references: [id])
   governmentId              String
-  RequireGovermentIds       GovermentIds               @relation("RequiredBy", fields: [requireGovernmentId], references: [id])
+  RequireGovernmentIds       GovernmentIds               @relation("RequiredBy", fields: [requireGovernmentId], references: [id])
   requireGovernmentId       String
 
   @@map("requirement_government_ids")
