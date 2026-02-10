@@ -13,43 +13,17 @@ export class GovernmentIdsService {
     userId: string,
     governmentIdsDto: CreateGovernmentIdDto,
   ) {
-    const { GroupRequirementGovernmentIds, ...governmentIdsDtoRes } =
-      governmentIdsDto;
+    const { ...governmentIdsDtoRes } = governmentIdsDto;
     const createdGovernmentIds = await this.prismaClient.governmentIds.create({
       data: {
         ownerAccountId: ownerId,
         createdBy: userId,
         ...governmentIdsDtoRes,
+        RequirementLists: {
+          create: {},
+        },
       },
     });
-
-    const createdGroupRequirements = await Promise.all(
-      GroupRequirementGovernmentIds.map(async (grgi) => {
-        const { requirements, ...res } = grgi;
-        const createdGroup =
-          await this.prismaClient.groupRequireGovernmentIds.create({
-            data: {
-              ownerAccountId: ownerId,
-              createdBy: userId,
-              ...res,
-            },
-          });
-
-        const requirementsGovernmentIds = requirements.map((r) => {
-          return {
-            governmentId: createdGovernmentIds.id,
-            groupRequireGovernmentId: createdGroup.id,
-            requireGovernmentId: r,
-            ownerAccountId: ownerId,
-            createdBy: userId,
-          };
-        });
-        const createdRequirementsGovernmentIds =
-          await this.prismaClient.requirementGovernmentIds.createMany({
-            data: requirementsGovernmentIds,
-          });
-      }),
-    );
   }
   create(
     ownerId: string,
@@ -77,73 +51,14 @@ export class GovernmentIdsService {
         id: governmentId,
         ownerAccountId: ownerId,
       },
-      include: {
-        RequirementGovernmentIds: true,
-        RequireGovernmentIds: true,
-        UserGovernmentIds: {
-          where: {
-            userAccountId: userId,
-          },
-        },
-      },
     });
-
-    console.log({ governmentIds });
-
-    const groupRequireGovernmentIds =
-      await this.prismaClient.groupRequireGovernmentIds.findMany({
-        where: {
-          id: {
-            in: governmentIds?.RequirementGovernmentIds.map(
-              (rgi) => rgi.groupRequireGovernmentId || '',
-            ),
-          },
-        },
-      });
-
-    const structuredGroup = await Promise.all(
-      groupRequireGovernmentIds.map(async (grgi) => {
-        const requireGovernmentIds =
-          await this.prismaClient.requirementGovernmentIds.findMany({
-            where: {
-              groupRequireGovernmentId: grgi.id,
-            },
-            include: {
-              RequireGovernmentIds: true,
-            },
-          });
-
-        const requireGovernmentIdsWithUserIds = await Promise.all(
-          requireGovernmentIds.map(async (rgi) => {
-            const userGovernmentIds =
-              await this.prismaClient.userGovernmentIds.findFirst({
-                where: {
-                  createdBy: userId,
-                },
-              });
-            return {
-              ...rgi,
-              UserGovernmentIds: userGovernmentIds,
-            };
-          }),
-        );
-
-        return {
-          require: requireGovernmentIdsWithUserIds,
-          ...grgi,
-        };
-      }),
-    );
-
     return {
       ...governmentIds,
-      requirements: structuredGroup,
     };
   }
 
   async baseUpdate(id: string, updateGovernmentIdDto: UpdateGovernmentIdDto) {
-    const { GroupRequirementGovernmentIds, ...governmentIdsDtoRes } =
-      updateGovernmentIdDto;
+    const { ...governmentIdsDtoRes } = updateGovernmentIdDto;
     const updatedGovernmentIds = await this.prismaClient.governmentIds.update({
       where: {
         id,
