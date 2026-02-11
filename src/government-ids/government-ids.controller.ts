@@ -1,23 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { GovernmentIdsService } from './government-ids.service';
-import { CreateGovernmentIdDto } from './dto/create-government-id.dto';
-import { UpdateGovernmentIdDto } from './dto/update-government-id.dto';
+import { ApiBasicAuth } from '@nestjs/swagger';
+import { PrismaClient } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
-import { AuthGuard } from '@nestjs/passport';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ApiBasicAuth, ApiParam } from '@nestjs/swagger';
-import { PrismaClient } from '@prisma/client';
-import * as _ from 'lodash';
+import { CreateGovernmentIdDto } from './dto/create-government-id.dto';
+import { UpdateGovernmentIdDto } from './dto/update-government-id.dto';
+import { GovernmentIdsService } from './government-ids.service';
 @UseGuards(JwtAuthGuard)
 @ApiBasicAuth()
 @Controller('government-ids')

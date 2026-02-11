@@ -13,6 +13,7 @@ import { UserRequirementModule } from './user-requirement/user-requirement.modul
 import { RequirementModule } from './requirement/requirement.module';
 import { RequireRequirementListModule } from './require-requirement-list/require-requirement-list.module';
 import { RequirementListModule } from './requirement-list/requirement-list.module';
+import { UserGovernmentIdsModule } from './user-government-ids/user-government-ids.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { RequirementListModule } from './requirement-list/requirement-list.modul
     RequirementModule,
     RequireRequirementListModule,
     RequirementListModule,
+    UserGovernmentIdsModule,
   ],
   providers: [JwtStrategy],
   exports: [PassportModule],

@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import _ from 'lodash';
 import { CreateGovernmentIdDto } from './dto/create-government-id.dto';
 import { UpdateGovernmentIdDto } from './dto/update-government-id.dto';
-import { isEAN } from 'class-validator';
 
 @Injectable()
 export class GovernmentIdsService {
@@ -19,11 +17,9 @@ export class GovernmentIdsService {
         ownerAccountId: ownerId,
         createdBy: userId,
         ...governmentIdsDtoRes,
-        RequirementLists: {
-          create: {},
-        },
       },
     });
+    return createdGovernmentIds;
   }
   create(
     ownerId: string,
@@ -38,11 +34,7 @@ export class GovernmentIdsService {
       where: { ownerAccountId: ownerId },
     });
 
-    return await Promise.all(
-      governmentIds.map(async (gi) => {
-        return await this.findOne(ownerId, userId, gi.id);
-      }),
-    );
+    return governmentIds;
   }
 
   async findOne(ownerId: string, userId: string, governmentId?: string) {
