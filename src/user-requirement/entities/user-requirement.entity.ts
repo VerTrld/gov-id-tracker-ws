@@ -3,8 +3,17 @@ import { Requirement } from 'src/requirement/entities/requirement.entity';
 import { UserAccountEntity } from 'src/user-account/entities/user-account.entity';
 
 export class UserRequirement extends DefaultEntity {
-  isActive: boolean;
-  Requirement: Requirement;
-  requirementsId: string;
-  UserAccount: UserAccountEntity;
+  // @ApiPropertyOptional()
+  // @IsBoolean()
+  isActive?: boolean;
+
+  // @ApiPropertyOptional()
+  // @IsString()
+  requirementsId?: string;
+
+  Requirement?: Requirement;
+
+  UserAccount?: UserAccountEntity;
+
+  userAccountId?: string;
 }

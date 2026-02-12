@@ -1,20 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RequirementService } from './requirement.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { OwnerIdParam } from 'src/params/OwnerIdParam';
+import { UserIdParam } from 'src/params/UserIdParam';
 import { CreateRequirementDto } from './dto/create-requirement.dto';
 import { UpdateRequirementDto } from './dto/update-requirement.dto';
+import { RequirementService } from './requirement.service';
 
 @Controller('requirement')
 export class RequirementController {
   constructor(private readonly requirementService: RequirementService) {}
 
-  @Post()
-  create(@Body() createRequirementDto: CreateRequirementDto) {
-    return this.requirementService.create(createRequirementDto);
+  @Post('/create/one')
+  create(
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+    @Body() createRequirementDto: CreateRequirementDto,
+  ) {
+    return this.requirementService.baseCreate(
+      ownerId,
+      userId,
+      createRequirementDto,
+    );
   }
 
-  @Get()
-  findAll() {
-    return this.requirementService.findAll();
+  @Get('/read/all')
+  async findAll(
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+  ) {
+    return await this.requirementService.findAll(ownerId, userId);
   }
 
   @Get(':id')
@@ -23,7 +44,10 @@ export class RequirementController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRequirementDto: UpdateRequirementDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateRequirementDto: UpdateRequirementDto,
+  ) {
     return this.requirementService.update(+id, updateRequirementDto);
   }
 

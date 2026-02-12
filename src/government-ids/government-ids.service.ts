@@ -11,14 +11,32 @@ export class GovernmentIdsService {
     userId: string,
     governmentIdsDto: CreateGovernmentIdDto,
   ) {
-    const { ...governmentIdsDtoRes } = governmentIdsDto;
+    const { Requirements, ...governmentIdsDtoRes } = governmentIdsDto;
     const createdGovernmentIds = await this.prismaClient.governmentIds.create({
       data: {
         ownerAccountId: ownerId,
         createdBy: userId,
+        RequirementLists: {
+          create: {
+            createdBy: userId,
+            ownerAccountId: ownerId,
+            Requirements: {
+              connect: Requirements.filter((r) => r.id).map((r) => ({
+                id: r.id,
+              })),
+              create: Requirements.filter((r) => !r.id).map((r) => ({
+                label: r.label,
+              })),
+            },
+          },
+        },
         ...governmentIdsDtoRes,
       },
+      include: {
+        RequirementLists: true,
+      },
     });
+
     return createdGovernmentIds;
   }
   create(
@@ -32,6 +50,21 @@ export class GovernmentIdsService {
   async findAll(ownerId: string, userId: string) {
     const governmentIds = await this.prismaClient.governmentIds.findMany({
       where: { ownerAccountId: ownerId },
+      include: {
+        RequirementLists: {
+          include: {
+            Requirements: {
+              include: {
+                UserRequirements: {
+                  where: {
+                    userAccountId: userId,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     return governmentIds;
@@ -42,6 +75,23 @@ export class GovernmentIdsService {
       where: {
         id: governmentId,
         ownerAccountId: ownerId,
+      },
+      include: {
+        RequirementLists: {
+          include: {
+            Requirements: {
+              include: {
+                UserRequirements: true,
+              },
+            },
+          },
+        },
+        UserGovernmentIds: {
+          where: {
+            ownerAccountId: ownerId,
+            createdBy: userId,
+          },
+        },
       },
     });
     return {

@@ -48,8 +48,8 @@ model GovernmentIds {
   code              String              @unique
   label             String
   officialUrls      String[]
-  RequirementLists  RequirementList[]
   UserGovernmentIds UserGovernmentIds[]
+  RequirementLists  RequirementList[]
 
   @@map("government_ids")
 }
@@ -69,39 +69,6 @@ model UserGovernmentIds {
   userAccountId   String
 }
 
-// model RequirementGovernmentIds {
-//   id             String   @id @unique @default(uuid())
-//   createdAt      DateTime @default(now())
-//   createdBy      String?
-//   updatedBy      String?
-//   updatedAt      DateTime @updatedAt
-//   ownerAccountId String?
-
-//   GroupRequireGovernmentIds GroupRequireGovernmentIds? @relation(fields: [groupRequireGovernmentId], references: [id])
-//   groupRequireGovernmentId  String?
-//   GovernmentIds             GovernmentIds              @relation("Requires", fields: [governmentId], references: [id])
-//   governmentId              String
-//   RequireGovernmentIds      GovernmentIds              @relation("RequiredBy", fields: [requireGovernmentId], references: [id])
-//   requireGovernmentId       String
-
-//   @@map("requirement_government_ids")
-// }
-
-// model GroupRequireGovernmentIds {
-//   id             String   @id @default(uuid())
-//   createdAt      DateTime @default(now())
-//   createdBy      String?
-//   updatedBy      String?
-//   updatedAt      DateTime @updatedAt
-//   ownerAccountId String?
-
-//   requirementGovernmentIds RequirementGovernmentIds[]
-//   minRequirement           Int?                       @default(1)
-//   label                    String?
-
-//   @@map("group_require_government_ids")
-// }
-
 model Requirements {
   id             String   @id @unique @default(uuid())
   createdAt      DateTime @default(now())
@@ -113,7 +80,7 @@ model Requirements {
   label                   String
   UserRequirements        UserRequirement[]
   RequireRequirementLists RequireRequirementList[]
-  requirementList         RequirementList?         @relation(fields: [requirementListId], references: [id])
+  RequirementList         RequirementList?         @relation(fields: [requirementListId], references: [id])
   requirementListId       String?
 
   @@map("requirements")
@@ -145,7 +112,7 @@ model RequirementList {
 
   RequireRequirementLists RequireRequirementList[]
   governmentId            String
-  governmentIds           GovernmentIds            @relation(fields: [governmentId], references: [id])
+  GovernmentIds           GovernmentIds            @relation(fields: [governmentId], references: [id])
   Requirements            Requirements[]
 
   @@map("requirement_list")
@@ -160,10 +127,10 @@ model UserRequirement {
   ownerAccountId String?
 
   isActive       Boolean
-  requirementsId String
-  Requirement    Requirements @relation(fields: [requirementsId], references: [id])
+  requirementsId String?
+  Requirement    Requirements? @relation(fields: [requirementsId], references: [id])
   userAccountId  String
-  UserAccount    UserAccount  @relation(fields: [userAccountId], references: [id])
+  UserAccount    UserAccount   @relation(fields: [userAccountId], references: [id])
 
   @@map("user_requirement")
 }

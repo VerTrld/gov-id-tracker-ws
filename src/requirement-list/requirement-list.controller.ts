@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RequirementListService } from './requirement-list.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateRequirementListDto } from './dto/create-requirement-list.dto';
 import { UpdateRequirementListDto } from './dto/update-requirement-list.dto';
+import { RequirementListService } from './requirement-list.service';
 
 @Controller('requirement-list')
 export class RequirementListController {
-  constructor(private readonly requirementListService: RequirementListService) {}
+  constructor(
+    private readonly requirementListService: RequirementListService,
+  ) {}
 
   @Post()
   create(@Body() createRequirementListDto: CreateRequirementListDto) {
@@ -23,7 +33,10 @@ export class RequirementListController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRequirementListDto: UpdateRequirementListDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateRequirementListDto: UpdateRequirementListDto,
+  ) {
     return this.requirementListService.update(+id, updateRequirementListDto);
   }
 

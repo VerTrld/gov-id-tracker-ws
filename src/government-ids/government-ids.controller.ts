@@ -63,7 +63,6 @@ export class GovernmentIdsController {
       governmentId?.id,
     );
 
-    console.log({ governmentIds });
     return governmentIds;
   }
 

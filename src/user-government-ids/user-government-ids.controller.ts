@@ -6,13 +6,17 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBasicAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
 import { CreateUserGovernmentIdDto } from './dto/create-user-government-id.dto';
-import { UpdateUserGovernmentIdDto } from './dto/update-user-government-id.dto';
 import { UserGovernmentIdsService } from './user-government-ids.service';
 
+@UseGuards(JwtAuthGuard)
+@ApiBasicAuth()
 @Controller('user-government-ids')
 export class UserGovernmentIdsController {
   constructor(
@@ -42,12 +46,9 @@ export class UserGovernmentIdsController {
     return this.userGovernmentIdsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateUserGovernmentIdDto: UpdateUserGovernmentIdDto,
-  ) {
-    return this.userGovernmentIdsService.update(+id, updateUserGovernmentIdDto);
+  @Patch('')
+  update() {
+    return this.userGovernmentIdsService.update();
   }
 
   @Delete(':id')

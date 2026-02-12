@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateUserGovernmentIdDto } from './dto/create-user-government-id.dto';
-import { UpdateUserGovernmentIdDto } from './dto/update-user-government-id.dto';
 
 @Injectable()
 export class UserGovernmentIdsService {
@@ -31,8 +30,8 @@ export class UserGovernmentIdsService {
     return `This action returns a #${id} userGovernmentId`;
   }
 
-  update(id: number, updateUserGovernmentIdDto: UpdateUserGovernmentIdDto) {
-    return `This action updates a #${id} userGovernmentId`;
+  async update() {
+    return;
   }
 
   remove(id: number) {
