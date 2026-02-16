@@ -51,7 +51,7 @@ export class UserAccountController {
     });
   }
 
-  @Put(':id')
+  @Put('update/:id')
   async update(
     @Param('id') id: string,
     @Body() updateUserAccountDto: UpdateUserAccountDto,
