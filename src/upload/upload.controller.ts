@@ -1,28 +1,65 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  BadRequestException,
+  UploadedFile,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadImage } from './entities/upload.entity';
+import { UploadImageEntity } from './entities/upload.entity';
+import { UploadImageDto } from './dto/upload.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
-  @Post('image')
+  @Post('image/:userRequirementId')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: UploadImage })
-  @UseInterceptors(FileInterceptor('file', {
-    limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
-    fileFilter: (req, file, cb) => {
-      if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.mimetype)) {
-        return cb(new BadRequestException('Only JPG, JPEG, or PNG files are allowed!'), false);
-      }
-      cb(null, true);
-    },
-  }))
-  async upload(@UploadedFile() file: any) {
-    const url = await this.uploadService.create(file);
+  @ApiBody({ type: UploadImageEntity })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
+      fileFilter: (req, file, cb) => {
+        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.mimetype)) {
+          return cb(
+            new BadRequestException(
+              'Only JPG, JPEG, or PNG files are allowed!',
+            ),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async upload(
+    @UploadedFile() file: any,
+    @Param('userRequirementId') userRequirementId: string,
+  ) {
+    const url = await this.uploadService.create(file, userRequirementId);
     return { message: 'Image uploaded successfully!', url };
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('view/:requirementId')
+  async viewRequirement(
+    @Param('requirementId') requirementId: string,
+    @Req() req,
+  ) {
+    console.log('REQ.USER:', req.user); // logs full user object
+    console.log('USER ID:', req.user.id); // logs only the userId
+
+    const userId = req.user.userId;
+    return this.uploadService.viewRequirement(userId, requirementId);
+  }
 }

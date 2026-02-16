@@ -67,6 +67,11 @@ model UserGovernmentIds {
   governmentIdsId String
   UserAccount     UserAccount   @relation(fields: [userAccountId], references: [id])
   userAccountId   String
+
+  UserRequirements UserRequirement[]
+
+   @@map("user_government_ids")
+
 }
 
 model Requirements {
@@ -132,5 +137,26 @@ model UserRequirement {
   userAccountId  String
   UserAccount    UserAccount   @relation(fields: [userAccountId], references: [id])
 
+  userGovernmentId   String?
+  UserGovernmentIds  UserGovernmentIds? @relation(fields: [userGovernmentId], references: [id])
+
+  RequirementUpload  RequirementUpload[]
+
   @@map("user_requirement")
+}
+
+
+model RequirementUpload {
+  id               String   @id @default(uuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  fileUrl          String
+  fileName         String
+  fileType         String
+
+  userRequirementId String
+  UserRequirement   UserRequirement @relation(fields: [userRequirementId], references: [id])
+
+  @@map("requirement_upload")
 }
