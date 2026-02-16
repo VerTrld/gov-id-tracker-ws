@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CreateFirstUserAccountDto } from './dto/create-user-account.dto';
@@ -18,6 +19,7 @@ import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
 import { ApiBasicAuth } from '@nestjs/swagger';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
+import { AuthGuard } from '@nestjs/passport';
 @ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {
@@ -51,11 +53,18 @@ export class UserAccountController {
     });
   }
 
-  @Put('update/:id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserAccountDto: UpdateUserAccountDto,
-  ) {
+  // @Put('update/:id')
+  // async update(
+  //   @Param('id') id: string,
+  //   @Body() updateUserAccountDto: UpdateUserAccountDto,
+  // ) {
+  //   return await this.userAccountService.update(id, updateUserAccountDto);
+  // }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('update')
+  async update(@Req() req, @Body() updateUserAccountDto: UpdateUserAccountDto) {
+    const id = req.user.userId;
     return await this.userAccountService.update(id, updateUserAccountDto);
   }
 
