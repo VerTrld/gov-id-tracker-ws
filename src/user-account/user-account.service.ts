@@ -9,6 +9,7 @@ import {
   CreateUserAccountDto,
 } from './dto/create-user-account.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { UpdateUserAccountDto } from './dto/update-user-account.dto';
 
 @Injectable()
 export class UserAccountService {
@@ -57,8 +58,22 @@ export class UserAccountService {
         password: createdHashPassword,
       },
     });
-    // @ts-ignore
-    return { ...createdUserAccount, password: null };
+    return _.omit(createdUserAccount, ['password']);
+  }
+
+  async update(id: string, updateUserAccountDto: UpdateUserAccountDto) {
+    const data = { ...updateUserAccountDto };
+
+    if (data.password) {
+      data.password = await this.hashPassword(data.password);
+    }
+
+    const updatedUser = await this.prismaClient.userAccount.update({
+      where: { id },
+      data: data,
+    });
+
+    return _.omit(updatedUser, ['password']);
   }
 
   async remove(id: string) {

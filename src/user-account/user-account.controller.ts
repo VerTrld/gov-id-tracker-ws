@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
 import { ApiBasicAuth } from '@nestjs/swagger';
+import { UpdateUserAccountDto } from './dto/update-user-account.dto';
 @ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {
@@ -47,6 +49,14 @@ export class UserAccountController {
       email,
       password,
     });
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserAccountDto: UpdateUserAccountDto,
+  ) {
+    return await this.userAccountService.update(id, updateUserAccountDto);
   }
 
   @Delete('/delete/:id')
