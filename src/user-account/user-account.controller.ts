@@ -20,6 +20,8 @@ import { UserIdParam } from 'src/params/UserIdParam';
 import { ApiBasicAuth } from '@nestjs/swagger';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
 import { AuthGuard } from '@nestjs/passport';
+
+// @UseGuards(JwtAuthGuard)
 @ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {
