@@ -61,9 +61,16 @@ export class UserAccountController {
 
   @UseGuards(JwtAuthGuard)
   @Put('update')
-  async update(@Req() req, @Body() updateUserAccountDto: UpdateUserAccountDto) {
-    const id = req.user.userId;
-    return await this.userAccountService.update(id, updateUserAccountDto);
+  async update(
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+    @Body() updateUserAccountDto: UpdateUserAccountDto,
+  ) {
+    return await this.userAccountService.update(
+      ownerId,
+      userId,
+      updateUserAccountDto,
+    );
   }
 
   @Delete('/delete/:id')

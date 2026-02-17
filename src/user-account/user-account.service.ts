@@ -10,10 +10,14 @@ import {
 } from './dto/create-user-account.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserAccountService {
-  constructor(private prismaClient: PrismaClient) {}
+  constructor(
+    private prismaClient: PrismaClient,
+    private authService: AuthService,
+  ) {}
 
   async hashPassword(password: string) {
     const hashPassword = await argon2.hash(password);
@@ -61,16 +65,44 @@ export class UserAccountService {
     return _.omit(createdUserAccount, ['password']);
   }
 
-  async update(id: string, updateUserAccountDto: UpdateUserAccountDto) {
-    const data = { ...updateUserAccountDto };
+  async update(
+    ownerId: string,
+    userId: string,
+    updateUserAccountDto: UpdateUserAccountDto,
+  ) {
+    const { currentPassword, newPassword, ...resDto } = updateUserAccountDto;
 
-    if (data.password) {
-      data.password = await this.hashPassword(data.password);
+    const user = await this.prismaClient.userAccount.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw Error('Invalid User');
+    }
+
+    const validateUser = await this.authService.validateUser(
+      user.email,
+      currentPassword,
+    );
+
+    if (!validateUser) {
+      throw Error('Invalid credentials');
+    }
+
+    if (updateUserAccountDto.newPassword) {
+      updateUserAccountDto.newPassword = await this.hashPassword(
+        updateUserAccountDto.newPassword,
+      );
     }
 
     const updatedUser = await this.prismaClient.userAccount.update({
-      where: { id },
-      data: data,
+      where: { ownerAccountId: ownerId, id: userId },
+      data: {
+        ...resDto,
+        password: updateUserAccountDto.newPassword,
+      },
     });
 
     return _.omit(updatedUser, ['password']);

@@ -42,7 +42,7 @@ export class IdTypesController {
   }
 
   // Delete ID Type
-  @Delete(':id')
+  @Delete('/delete/:id')
   remove(@Param('id') id: string) {
     return this.idTypesService.remove(id);
   }

@@ -91,8 +91,8 @@ model IdTypeRequirement {
 
   isRequired Boolean @default(true)
 
-  idType      IdType      @relation(fields: [idTypeId], references: [id])
-  requirement Requirement @relation(fields: [requirementId], references: [id])
+  idType      IdType      @relation(fields: [idTypeId], references: [id], onDelete: Cascade)
+  requirement Requirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
 
   @@unique([idTypeId, requirementId])
   @@map("id_type_requirement")
@@ -111,8 +111,8 @@ model Application {
   status   ApplicationStatus @default(PENDING)
   isActive Boolean           @default(true)
 
-  user   UserAccount @relation(fields: [userId], references: [id])
-  idType IdType      @relation(fields: [idTypeId], references: [id])
+  user   UserAccount @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idType IdType      @relation(fields: [idTypeId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([idTypeId])
@@ -136,7 +136,7 @@ model UserRequirement {
   completedAt DateTime?
   expiresAt   DateTime?
 
-  user               UserAccount         @relation(fields: [userId], references: [id])
+  user               UserAccount         @relation(fields: [userId], references: [id], onDelete: Cascade)
   requirement        Requirement         @relation(fields: [requirementId], references: [id])
   requirementUploads RequirementUpload[]
 
@@ -155,7 +155,7 @@ model RequirementUpload {
   fileType String
 
   userRequirementId String
-  UserRequirement   UserRequirement @relation(fields: [userRequirementId], references: [id])
+  UserRequirement   UserRequirement @relation(fields: [userRequirementId], references: [id], onDelete: Cascade)
 
   @@map("requirement_upload")
 }

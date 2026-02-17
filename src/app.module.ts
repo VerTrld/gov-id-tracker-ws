@@ -17,15 +17,15 @@ import { RequirementModule } from './requirement/requirement.module';
 
 @Module({
   imports: [
-    PrismaModule,
-    AuthModule,
-    UserAccountModule,
-    UploadModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
     }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PrismaModule,
+    AuthModule,
+    UserAccountModule,
+    UploadModule,
     IdTypeModule,
     IdTypeRequirementModule,
     ApplicationModule,
