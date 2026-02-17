@@ -21,7 +21,7 @@ import { ApiBasicAuth } from '@nestjs/swagger';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {

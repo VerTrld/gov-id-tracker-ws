@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateUserRequirementDto } from './create-user-requirement.dto';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { UserRequirementDto } from '../entities/user-update.entity';
 
-export class UpdateUserRequirementDto extends PartialType(CreateUserRequirementDto) {}
+export class UpdateUserRequirementDto extends PickType(UserRequirementDto, [
+  'requirementsId',
+  'userRequirementId',
+  'isActive',
+]) {}

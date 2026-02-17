@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBasicAuth } from '@nestjs/swagger';
@@ -14,6 +15,8 @@ import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
 import { CreateUserRequirementDto } from './dto/create-user-requirement.dto';
 import { UserRequirementService } from './user-requirement.service';
+import { UserRequirement } from './entities/user-requirement.entity';
+import { UpdateUserRequirementDto } from './dto/update-user-requirement.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiBasicAuth()
@@ -24,8 +27,9 @@ export class UserRequirementController {
   ) {}
 
   @Post()
-  create(@Body() createUserRequirementDto: CreateUserRequirementDto) {
-    return this.userRequirementService.create(createUserRequirementDto);
+  async create(@Req() req, @Body() createUserRequirementDto: UserRequirement) {
+    const userId = req.user.userId;
+    return this.userRequirementService.create(userId, createUserRequirementDto);
   }
 
   @Get()
@@ -38,18 +42,23 @@ export class UserRequirementController {
     return this.userRequirementService.findOne(+id);
   }
 
-  @Patch('/update/toggle')
-  update(
-    @OwnerIdParam() ownerId: string,
-    @UserIdParam() userId: string,
-    @Body() createUserRequirementDto: any,
-  ) {
-    return this.userRequirementService.update(
-      ownerId,
-      userId,
-      createUserRequirementDto,
-    );
+  @Patch('/update/:id')
+  update(@Param('id') id: string) {
+    return this.userRequirementService.update(id);
   }
+
+  // @Patch('/update/toggle')
+  // update(
+  //   @OwnerIdParam() ownerId: string,
+  //   @UserIdParam() userId: string,
+  //   @Body() createUserRequirementDto: any,
+  // ) {
+  //   return this.userRequirementService.update(
+  //     ownerId,
+  //     userId,
+  //     createUserRequirementDto,
+  //   );
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
