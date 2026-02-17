@@ -1,84 +1,76 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { OwnerIdParam } from 'src/params/OwnerIdParam';
-import { UserIdParam } from 'src/params/UserIdParam';
-import { CreateUserRequirementDto } from './dto/create-user-requirement.dto';
 
 @Injectable()
-export class UserRequirementService {
-  constructor(private readonly prismaService: PrismaClient) {}
-  create(createUserRequirementDto: CreateUserRequirementDto) {
-    return 'This action adds a new userRequirement';
+export class UserRequirementsService {
+  constructor(private prisma: PrismaClient) {}
+
+  // 1️⃣ Get all completed requirements of user
+  async findByUser(ownerId: string, userId: string) {
+    return this.prisma.userRequirement.findMany({
+      where: { userId, ownerAccountId: ownerId },
+      include: {
+        requirement: true,
+      },
+      orderBy: { completedAt: 'desc' },
+    });
   }
 
-  findAll() {
-    return `This action returns all userRequirement`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} userRequirement`;
-  }
-
-  async update(
-    @OwnerIdParam() ownerId: string,
-    @UserIdParam() userId: string,
-    @Body() createUserRequirementDto: any,
+  // 2️⃣ Complete or Upload Requirement
+  async complete(
+    ownerId: string,
+    userId: string,
+    requirementId: string,
+    fileUrl?: string,
+    expiresAt?: Date,
   ) {
-    const { id, ...resDto } = createUserRequirementDto;
-    console.log({ createUserRequirementDto });
-    const findUserReq = await this.prismaService.userRequirement.findFirst({
+    const userRequirement = await this.prisma.userRequirement.findFirst({
       where: {
-        ownerAccountId: ownerId,
-        createdBy: userId,
-        id: id || '',
+        requirementId,
+        userId: userId,
       },
     });
-
-    let res;
-
-    if (!findUserReq) {
-      res = await this.prismaService.userRequirement.create({
-        data: {
-          userAccountId: userId,
-          ownerAccountId: ownerId,
-          createdBy: userId,
-          ...resDto,
-          isActive: true,
+    return this.prisma.userRequirement.upsert({
+      where: {
+        ownerAccountId: ownerId,
+        userId_requirementId: {
+          userId,
+          requirementId,
         },
-      });
-
-      return res;
-
-      // await this.prismaService.userRequirement.update({
-      //   where: {
-      //     ownerAccountId: ownerId,
-      //     createdBy: userId,
-      //     id: res.id,
-      //   },
-      //   data: {
-      //     requirementsId: resDto.requirementsId,
-      //   },
-      // });
-    }
-    res = await this.prismaService.userRequirement.update({
-      where: {
-        createdBy: userId,
-        ownerAccountId: ownerId,
-        id: id,
       },
-      data: {
-        isActive: !findUserReq?.isActive,
+      update: {
+        ownerAccountId: ownerId,
+        isCompleted: !userRequirement?.isCompleted,
+        updatedBy: userId,
+        fileUrl,
+        expiresAt,
+        completedAt: new Date(),
+      },
+      create: {
+        ownerAccountId: ownerId,
+        userId,
+        requirementId,
+        isCompleted: true,
+        fileUrl,
+        expiresAt,
+        completedAt: new Date(),
       },
     });
-
-    return res;
   }
 
-  patch(@OwnerIdParam() ownerId: string) {
-    return;
-  }
+  // 3️⃣ Admin Verification
+  async verify(id: string) {
+    const record = await this.prisma.userRequirement.findUnique({
+      where: { id },
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} userRequirement`;
+    if (!record) throw new NotFoundException();
+
+    return this.prisma.userRequirement.update({
+      where: { id },
+      data: {
+        verified: true,
+      },
+    });
   }
 }

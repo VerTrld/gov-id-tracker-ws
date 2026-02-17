@@ -16,7 +16,6 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
 import { ApiBasicAuth } from '@nestjs/swagger';
-@ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {
   constructor(private readonly userAccountService: UserAccountService) {}

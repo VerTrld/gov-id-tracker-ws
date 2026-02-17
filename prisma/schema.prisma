@@ -18,6 +18,12 @@ enum UserRoles {
   USER
 }
 
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model UserAccount {
   id             String   @id @unique @default(uuid())
   createdAt      DateTime @default(now())
@@ -26,17 +32,17 @@ model UserAccount {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  name              String
-  email             String              @unique
-  password          String
-  roles             UserRoles?          @default(USER)
-  UserRequirements  UserRequirement[]
-  userGovernmentIds UserGovernmentIds[]
+  name             String
+  email            String            @unique
+  password         String
+  roles            UserRoles?        @default(USER)
+  applications     Application[]
+  userRequirements UserRequirement[]
 
   @@map("user_account")
 }
 
-model GovernmentIds {
+model IdType {
   id             String   @id @unique @default(uuid())
   createdAt      DateTime @default(now())
   createdBy      String?
@@ -44,17 +50,18 @@ model GovernmentIds {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  description       String?
-  code              String              @unique
-  label             String
-  officialUrls      String[]
-  UserGovernmentIds UserGovernmentIds[]
-  RequirementLists  RequirementList[]
+  label        String
+  code         String   @unique
+  officialUrls String[]
+  description  String?
 
-  @@map("government_ids")
+  requirements IdTypeRequirement[]
+  applications Application[]
+
+  @@map("id_type")
 }
 
-model UserGovernmentIds {
+model Requirement {
   id             String   @id @unique @default(uuid())
   createdAt      DateTime @default(now())
   createdBy      String?
@@ -62,14 +69,16 @@ model UserGovernmentIds {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  isActive        Boolean       @default(true)
-  GovernmentIds   GovernmentIds @relation(fields: [governmentIdsId], references: [id])
-  governmentIdsId String
-  UserAccount     UserAccount   @relation(fields: [userAccountId], references: [id])
-  userAccountId   String
+  label       String  @unique
+  description String?
+
+  idTypes          IdTypeRequirement[]
+  userRequirements UserRequirement[]
+
+  @@map("requirement")
 }
 
-model Requirements {
+model IdTypeRequirement {
   id             String   @id @unique @default(uuid())
   createdAt      DateTime @default(now())
   createdBy      String?
@@ -77,16 +86,19 @@ model Requirements {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  label                   String
-  UserRequirements        UserRequirement[]
-  RequireRequirementLists RequireRequirementList[]
-  RequirementList         RequirementList?         @relation(fields: [requirementListId], references: [id])
-  requirementListId       String?
+  idTypeId      String
+  requirementId String
 
-  @@map("requirements")
+  isRequired Boolean @default(true)
+
+  idType      IdType      @relation(fields: [idTypeId], references: [id])
+  requirement Requirement @relation(fields: [requirementId], references: [id])
+
+  @@unique([idTypeId, requirementId])
+  @@map("id_type_requirement")
 }
 
-model RequireRequirementList {
+model Application {
   id             String   @id @unique @default(uuid())
   createdAt      DateTime @default(now())
   createdBy      String?
@@ -94,28 +106,17 @@ model RequireRequirementList {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  Requirements      Requirements    @relation(fields: [requirementsId], references: [id])
-  requirementsId    String
-  RequirementList   RequirementList @relation(fields: [requirementListId], references: [id])
-  requirementListId String
+  userId   String
+  idTypeId String
+  status   ApplicationStatus @default(PENDING)
+  isActive Boolean           @default(true)
 
-  @@map("require_requirement_list")
-}
+  user   UserAccount @relation(fields: [userId], references: [id])
+  idType IdType      @relation(fields: [idTypeId], references: [id])
 
-model RequirementList {
-  id             String   @id @unique @default(uuid())
-  createdAt      DateTime @default(now())
-  createdBy      String?
-  updatedBy      String?
-  updatedAt      DateTime @updatedAt
-  ownerAccountId String?
-
-  RequireRequirementLists RequireRequirementList[]
-  governmentId            String
-  GovernmentIds           GovernmentIds            @relation(fields: [governmentId], references: [id])
-  Requirements            Requirements[]
-
-  @@map("requirement_list")
+  @@index([userId])
+  @@index([idTypeId])
+  @@map("application")
 }
 
 model UserRequirement {
@@ -126,11 +127,19 @@ model UserRequirement {
   updatedAt      DateTime @updatedAt
   ownerAccountId String?
 
-  isActive       Boolean
-  requirementsId String?
-  Requirement    Requirements? @relation(fields: [requirementsId], references: [id])
-  userAccountId  String
-  UserAccount    UserAccount   @relation(fields: [userAccountId], references: [id])
+  userId        String
+  requirementId String
 
+  isCompleted Boolean   @default(false)
+  fileUrl     String?
+  verified    Boolean   @default(false)
+  completedAt DateTime?
+  expiresAt   DateTime?
+
+  user        UserAccount @relation(fields: [userId], references: [id])
+  requirement Requirement @relation(fields: [requirementId], references: [id])
+
+  @@unique([userId, requirementId])
+  @@index([userId])
   @@map("user_requirement")
 }

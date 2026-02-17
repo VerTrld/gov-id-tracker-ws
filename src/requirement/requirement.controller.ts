@@ -1,58 +1,53 @@
 import {
-  Body,
   Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
   Post,
+  Get,
+  Patch,
+  Delete,
+  Param,
+  Body,
 } from '@nestjs/common';
-import { OwnerIdParam } from 'src/params/OwnerIdParam';
-import { UserIdParam } from 'src/params/UserIdParam';
+import { RequirementsService } from './requirement.service';
 import { CreateRequirementDto } from './dto/create-requirement.dto';
-import { UpdateRequirementDto } from './dto/update-requirement.dto';
-import { RequirementService } from './requirement.service';
 
-@Controller('requirement')
-export class RequirementController {
-  constructor(private readonly requirementService: RequirementService) {}
+@Controller('requirements')
+export class RequirementsController {
+  constructor(private readonly requirementsService: RequirementsService) {}
 
-  @Post('/create/one')
-  create(
-    @OwnerIdParam() ownerId: string,
-    @UserIdParam() userId: string,
-    @Body() createRequirementDto: CreateRequirementDto,
-  ) {
-    return this.requirementService.baseCreate(
-      ownerId,
-      userId,
-      createRequirementDto,
-    );
+  // Create Requirement
+  @Post()
+  create(@Body() createRequirementDto: CreateRequirementDto) {
+    return this.requirementsService.create(createRequirementDto);
   }
 
+  // Get All Requirements
   @Get('/read/all')
-  async findAll(
-    @OwnerIdParam() ownerId: string,
-    @UserIdParam() userId: string,
-  ) {
-    return await this.requirementService.findAll(ownerId, userId);
+  findAll() {
+    return this.requirementsService.findAll();
   }
 
+  // Get Single Requirement
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.requirementService.findOne(+id);
+    return this.requirementsService.findOne(id);
   }
 
+  // Update Requirement
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateRequirementDto: UpdateRequirementDto,
+    @Body()
+    body: {
+      name?: string;
+      description?: string;
+    },
   ) {
-    return this.requirementService.update(+id, updateRequirementDto);
+    return this.requirementsService.update(id, body);
   }
 
+  // Delete Requirement
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.requirementService.remove(+id);
+    return this.requirementsService.remove(id);
   }
 }
