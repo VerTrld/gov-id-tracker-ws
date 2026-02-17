@@ -14,12 +14,24 @@ import { ApplicationModule } from './application/application.module';
 import { UserRequirement } from './user-requirement/entities/user-requirement.entity';
 import { UserRequirementModule } from './user-requirement/user-requirement.module';
 import { RequirementModule } from './requirement/requirement.module';
-
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EmailModule } from './email/email.module';
 @Module({
   imports: [
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
+    }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      },
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     PrismaModule,
@@ -31,6 +43,7 @@ import { RequirementModule } from './requirement/requirement.module';
     ApplicationModule,
     UserRequirementModule,
     RequirementModule,
+    EmailModule,
   ],
   providers: [JwtStrategy],
   exports: [PassportModule],

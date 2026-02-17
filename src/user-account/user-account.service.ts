@@ -11,12 +11,14 @@ import {
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UserAccountService {
   constructor(
     private prismaClient: PrismaClient,
     private authService: AuthService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async hashPassword(password: string) {
@@ -61,6 +63,13 @@ export class UserAccountService {
         createdBy: userId || id,
         password: createdHashPassword,
       },
+    });
+
+    await this.mailerService.sendMail({
+      to: createdUserAccount.email,
+      from: process.env.MAIL_USER,
+      subject: 'Welcome to ID Mo, Karera Mo',
+      html: `'<b>Welcome! Your account was successfully created.</b>',`,
     });
     return _.omit(createdUserAccount, ['password']);
   }
