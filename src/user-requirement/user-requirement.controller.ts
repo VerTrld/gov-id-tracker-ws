@@ -1,67 +1,53 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
   Patch,
-  Post,
+  Param,
+  Body,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBasicAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { UserRequirementsService } from './user-requirement.service';
 import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
-import { CreateUserRequirementDto } from './dto/create-user-requirement.dto';
-import { UserRequirementService } from './user-requirement.service';
-import { UserRequirement } from './entities/user-requirement.entity';
-import { UpdateUserRequirementDto } from './dto/update-user-requirement.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@ApiBasicAuth()
-@Controller('user-requirement')
-export class UserRequirementController {
+@Controller('user-requirements')
+export class UserRequirementsController {
   constructor(
-    private readonly userRequirementService: UserRequirementService,
+    private readonly userRequirementsService: UserRequirementsService,
   ) {}
 
-  @Post()
-  async create(@Req() req, @Body() createUserRequirementDto: UserRequirement) {
-    const userId = req.user.userId;
-    return this.userRequirementService.create(userId, createUserRequirementDto);
+  // Get all requirements completed by current user
+  @Get('/read/all')
+  findMine(@OwnerIdParam() ownerId: string, @UserIdParam() userId: string) {
+    return this.userRequirementsService.findByUser(ownerId, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.userRequirementService.findAll();
+  // Complete / Upload a requirement
+  @Patch('/update/:requirementId')
+  complete(
+    @OwnerIdParam() ownerId: string,
+    @UserIdParam() userId: string,
+    @Param('requirementId') requirementId: string,
+    // @Body()
+    // body: {
+    //   fileUrl?: string;
+    //   expiresAt?: Date;
+    // },
+  ) {
+    console.log({ requirementId });
+    return this.userRequirementsService.complete(
+      ownerId,
+      userId,
+      requirementId,
+    );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userRequirementService.findOne(+id);
-  }
-
-  @Patch('/update/:id')
-  update(@Param('id') id: string) {
-    return this.userRequirementService.update(id);
-  }
-
-  // @Patch('/update/toggle')
-  // update(
-  //   @OwnerIdParam() ownerId: string,
-  //   @UserIdParam() userId: string,
-  //   @Body() createUserRequirementDto: any,
-  // ) {
-  //   return this.userRequirementService.update(
-  //     ownerId,
-  //     userId,
-  //     createUserRequirementDto,
-  //   );
-  // }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userRequirementService.remove(+id);
+  // Admin verify requirement
+  @Patch(':id/verify')
+  verify(@Param('id') id: string) {
+    return this.userRequirementsService.verify(id);
   }
 }

@@ -1,52 +1,77 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateRequirementDto } from './dto/create-requirement.dto';
-import { UpdateRequirementDto } from './dto/update-requirement.dto';
 
 @Injectable()
-export class RequirementService {
-  constructor(private readonly prismaService: PrismaClient) {}
-  async baseCreate(
-    ownerId: string,
-    userId: string,
-    createRequirementDto: CreateRequirementDto,
-  ) {
-    const createdRequirement = await this.prismaService.requirements.create({
-      data: {
-        ownerAccountId: ownerId,
-        createdBy: userId,
-        ...createRequirementDto,
+export class RequirementsService {
+  constructor(private prisma: PrismaClient) {}
+
+  // 1️⃣ Create Requirement
+  async create(createRequirementDto: CreateRequirementDto) {
+    try {
+      return await this.prisma.requirement.create({
+        data: {
+          ...createRequirementDto,
+        },
+      });
+    } catch (error) {
+      throw new ConflictException('Requirement already exists');
+    }
+  }
+
+  // 2️⃣ Get All Requirements
+  async findAll() {
+    return this.prisma.requirement.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // 3️⃣ Get One Requirement
+  async findOne(id: string) {
+    const requirement = await this.prisma.requirement.findUnique({
+      where: { id },
+      include: {
+        idTypes: {
+          include: {
+            idType: true,
+          },
+        },
       },
     });
-    return createdRequirement;
+
+    if (!requirement) throw new NotFoundException();
+
+    return requirement;
   }
 
-  create(
-    ownerId: string,
-    userId: string,
-    createRequirementDto: CreateRequirementDto,
-  ) {
-    return 'This action adds a new requirement';
-  }
-
-  async findAll(ownerId: string, userId: string) {
-    const requirements = await this.prismaService.requirements.findMany({
-      where: {
-        ownerAccountId: ownerId,
-      },
+  // 4️⃣ Update Requirement
+  async update(id: string, data: { name?: string; description?: string }) {
+    const exists = await this.prisma.requirement.findUnique({
+      where: { id },
     });
-    return requirements;
+
+    if (!exists) throw new NotFoundException();
+
+    return this.prisma.requirement.update({
+      where: { id },
+      data,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} requirement`;
-  }
+  // 5️⃣ Delete Requirement
+  async remove(id: string) {
+    const exists = await this.prisma.requirement.findUnique({
+      where: { id },
+    });
 
-  update(id: number, updateRequirementDto: UpdateRequirementDto) {
-    return `This action updates a #${id} requirement`;
-  }
+    if (!exists) throw new NotFoundException();
 
-  remove(id: number) {
-    return `This action removes a #${id} requirement`;
+    return this.prisma.requirement.delete({
+      where: { id },
+    });
   }
 }

@@ -1,18 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
 import { DefaultEntity } from 'src/enum/common/entity/default.entity';
-import { RequireRequirementListService } from 'src/require-requirement-list/require-requirement-list.service';
-import { RequirementList } from 'src/requirement-list/entities/requirement-list.entity';
+import { IdTypeRequirement } from 'src/id-type-requirement/entities/id-type-requirement.entity';
 import { UserRequirement } from 'src/user-requirement/entities/user-requirement.entity';
 
 export class Requirement extends DefaultEntity {
-  @ApiProperty()
-  @IsString()
   label: string;
-
-  RequirementList: RequirementList[];
-
+  description: string;
+  IdTypes: IdTypeRequirement[];
   UserRequirements: UserRequirement[];
-
-  RequireRequirementLists: RequireRequirementListService[];
 }

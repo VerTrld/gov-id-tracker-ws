@@ -44,7 +44,7 @@ export class UploadService {
   async viewRequirement(userId: string, requirementId: string) {
     // Get UserRequirement for this user + requirement
     const userReq = await this.prismaService.userRequirement.findFirst({
-      where: { userAccountId: userId, id: requirementId },
+      where: { userId: userId, id: requirementId },
     });
 
     console.log(userReq);

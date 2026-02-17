@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { UserRequirementService } from './user-requirement.service';
-import { UserRequirementController } from './user-requirement.controller';
+import { UserRequirementsService } from './user-requirement.service';
+import { UserRequirementsController } from './user-requirement.controller';
 
 @Module({
-  controllers: [UserRequirementController],
-  providers: [UserRequirementService],
+  controllers: [UserRequirementsController],
+  providers: [UserRequirementsService],
 })
 export class UserRequirementModule {}

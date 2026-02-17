@@ -19,10 +19,6 @@ import { OwnerIdParam } from 'src/params/OwnerIdParam';
 import { UserIdParam } from 'src/params/UserIdParam';
 import { ApiBasicAuth } from '@nestjs/swagger';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
-import { AuthGuard } from '@nestjs/passport';
-
-@UseGuards(JwtAuthGuard)
-@ApiBasicAuth()
 @Controller('user-account')
 export class UserAccountController {
   constructor(private readonly userAccountService: UserAccountService) {}
@@ -63,7 +59,7 @@ export class UserAccountController {
   //   return await this.userAccountService.update(id, updateUserAccountDto);
   // }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Put('update')
   async update(@Req() req, @Body() updateUserAccountDto: UpdateUserAccountDto) {
     const id = req.user.userId;
