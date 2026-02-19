@@ -1,17 +1,17 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as argon2 from 'argon2';
 import * as _ from 'lodash';
+import { AuthService } from 'src/auth/auth.service';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { UserRole } from 'src/enum/common/enums/user-role.enum';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CreateFirstUserAccountDto,
   CreateUserAccountDto,
 } from './dto/create-user-account.dto';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { UpdateUserAccountDto } from './dto/update-user-account.dto';
-import { AuthService } from 'src/auth/auth.service';
-import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UserAccountService {
@@ -65,12 +65,12 @@ export class UserAccountService {
       },
     });
 
-    await this.mailerService.sendMail({
-      to: createdUserAccount.email,
-      from: process.env.MAIL_USER,
-      subject: 'Welcome to ID Mo, Karera Mo',
-      html: `'<b>Welcome! Your account was successfully created.</b>',`,
-    });
+    // await this.mailerService.sendMail({
+    //   to: createdUserAccount.email,
+    //   from: process.env.MAIL_USER,
+    //   subject: 'Welcome to ID Mo, Karera Mo',
+    //   html: `'<b>Welcome! Your account was successfully created.</b>',`,
+    // });
     return _.omit(createdUserAccount, ['password']);
   }
 

@@ -54,6 +54,7 @@ model IdType {
   code         String   @unique
   officialUrls String[]
   description  String?
+  logoUrl      String?
 
   requirements IdTypeRequirement[]
   applications Application[]

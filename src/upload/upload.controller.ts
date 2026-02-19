@@ -1,23 +1,19 @@
 import {
+  BadRequestException,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
-  UseInterceptors,
-  BadRequestException,
-  UploadedFile,
+  Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { UploadService } from './upload.service';
-import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadImageEntity } from './entities/upload.entity';
-import { UploadImageDto } from './dto/upload.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { UploadImageEntity } from './entities/upload.entity';
+import { UploadService } from './upload.service';
 
 @Controller('upload')
 export class UploadController {

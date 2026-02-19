@@ -1,22 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import type { Multer } from 'multer';
+import { UploadService } from 'src/upload/upload.service';
 import { CreateIdTypeDto } from './dto/create-id-type.dto';
 
 @Injectable()
 export class IdTypesService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private readonly uploadService: UploadService,
+  ) {}
 
   // 1️⃣ Create ID Type + Attach Requirements
-  async create(createIdTypeDto: CreateIdTypeDto) {
+  async create(createIdTypeDto: CreateIdTypeDto, file?: Multer.File) {
     const { requirementIds, ...resDto } = createIdTypeDto;
+
+    const { fileName, fileUrl } = await this.uploadService.upload(file);
+
     const idType = await this.prisma.idType.create({
       data: {
         ...resDto,
+        logoUrl: fileUrl,
       },
     });
 
-    const toConnect = requirementIds.filter((ri) => ri.id);
-    const toCreate = requirementIds.filter((ri) => !ri.id);
+    const toConnect = requirementIds?.filter((ri) => ri.id) || [];
+    const toCreate = requirementIds?.filter((ri) => !ri.id) || [];
 
     if (requirementIds?.length) {
       if (toConnect.length) {
@@ -28,7 +37,6 @@ export class IdTypesService {
         });
       }
 
-      console.log({ toConnect, toCreate });
       if (toCreate.length) {
         const createdRequirements =
           await this.prisma.requirement.createManyAndReturn({
@@ -40,7 +48,7 @@ export class IdTypesService {
             }),
           });
 
-        if (createdRequirements) {
+        if (createdRequirements?.length) {
           await this.prisma.idTypeRequirement.createMany({
             data: createdRequirements.map((ri) => ({
               idTypeId: idType.id,

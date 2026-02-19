@@ -7,6 +7,20 @@ export class UploadService {
   constructor(private readonly prismaService: PrismaClient) {}
 
   public async create(file: any, userRequirementId: string): Promise<string> {
+    const { fileUrl, fileName } = await this.upload(file);
+    await this.prismaService.requirementUpload.create({
+      data: {
+        fileUrl,
+        fileName,
+        fileType: file.mimetype,
+        userRequirementId,
+      },
+    });
+
+    return fileUrl;
+  }
+
+  async upload(file: any) {
     if (!file) throw new BadRequestException('No image provided');
 
     const fileName = `${Date.now()}-${file.originalname}`;
@@ -29,16 +43,7 @@ export class UploadService {
 
     const fileUrl = data.publicUrl;
 
-    await this.prismaService.requirementUpload.create({
-      data: {
-        fileUrl,
-        fileName,
-        fileType: file.mimetype,
-        userRequirementId,
-      },
-    });
-
-    return fileUrl;
+    return { fileUrl, fileName };
   }
 
   async viewRequirement(userId: string, requirementId: string) {
