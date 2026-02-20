@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { supabase } from 'src/lib/supabase';
 
@@ -58,6 +58,20 @@ export class UploadService {
 
     return this.prismaService.requirementUpload.findMany({
       where: { userRequirementId: userReq.id },
+    });
+  }
+
+
+  async deleteImage(imageId: string) {
+    const existing = await this.prismaService.requirementUpload.findUnique({
+      where: { id: imageId },
+    });
+  
+    if (!existing) {
+      throw new NotFoundException('Image not found');
+    }
+    return await this.prismaService.requirementUpload.delete({
+      where: { id: imageId },
     });
   }
 }

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -58,4 +59,23 @@ export class UploadController {
     const userId = req.user.userId;
     return this.uploadService.viewRequirement(userId, requirementId);
   }
+
+
+  @Delete(':imageId')
+  async deleteImage(
+    @Param('imageId') imageId: string,
+  ) {
+    const deletedImage = await this.uploadService.deleteImage(imageId);
+
+    return {
+      message: 'Image deleted successfully',
+      data: deletedImage,
+    };
+  }
+
+
+
+
+
+
 }
